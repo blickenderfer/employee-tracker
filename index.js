@@ -1,4 +1,4 @@
-const mysql = require("mysql2");
+const mysql = require("mysql2/promise");
 const inquirer = require("inquirer");
 require("dotenv").config()
 
@@ -25,17 +25,16 @@ function menu(){
         }
     ]).then((answers)=>{
         if(answers.option === "View all Departments"){
-            //execute view department function
+            viewDepartments()
         } else if(answers.option === "View all Roles"){
             //execute view role function
         }
     }) 
 }
 //grabbing from database
-function viewDepartments(){
-    db.query("SELECT * FROM departments", (err, results) => {
-        if(err)throw err
-        console.table(results)
+async function viewDepartments(){
+    const allDepartments = await db.query("SELECT * FROM departments")
+        console.table(allDepartments)
         menu()
-    })
-}
+    }
+
