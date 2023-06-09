@@ -25,6 +25,40 @@ if (selection === "Quit"){
 } else if (selection === "View All Employees") {
     rows = await db.query("SELECT employee.id, employee.first_name, employee.last_name, role.title AS title, department.name AS department, role.salary AS salary, CASE WHEN employee.manager_id IS NOT NULL THEN CONCAT(manager_table.first_name, ' ', manager_table.last_name)ELSE NULL END AS manager FROM employee JOIN role ON employee.role_id = role.id JOIN department ON role.department_id = department.id JOIN employee manager_table ON employee.manager_id = manager_table.id")
     console.table(rows[0])
+} else if (selection === "Add Department") {
+    inqOutput = await inquirer.prompt([
+        {
+            name: "department",
+            message: "What is the name of the new department?",
+        }
+    ])
+    try{
+        await db.query(`INSERT INTO department (name) VALUES ('${inqOutput.department}')`)
+    } catch(err){
+        console.log(err)
+    }
+} else if (selection === "Add Role") {
+    inqOutput = await inquirer.prompt([
+        {
+            name: "roleName",
+            message: "What is the name of the new role?"
+        },
+        {
+            name: "roleSalary",
+            message: "What is the salary of the new role?"
+        },
+        {
+            name: "roleDepartment",
+            message: "What department does the new role belong to?"
+        } 
+    ])
+    const deptId = await db.query(`SELECT IFNULL ((SELECT id FROM department WHERE name = "${roleDepartment}"), "That department does not exist")`)
+    rows = deptId[0]
+    const dId = Object.values(rows[0])[0]
+    if (dId == "That department does not exist"){
+        console.log("Please enter an existing department.")
+    }
+    
 }
 
 
